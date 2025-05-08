@@ -84,6 +84,18 @@ router.put("/update/:id", async (req, res) => {
     }
 });
 
-
+// Delete an issue by ID
+router.delete("/delete/:id", async (req, res) => {
+    try {
+        const deletedIssue = await Issue.findByIdAndDelete(req.params.id);
+        if (!deletedIssue) {
+            return res.status(404).json({ message: "Issue not found" });
+        }
+        res.status(200).json({ message: "Issue deleted successfully" });
+    } catch (error) {
+        console.error("Delete Issue Error:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
 
 module.exports = router;

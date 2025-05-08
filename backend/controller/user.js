@@ -114,5 +114,22 @@ router.put("/update/:email", async (req, res) => {
     }
 });
 
+// Delete user by email
+router.delete("/delete/:email", async (req, res) => {
+    try {
+        const email = req.params.email;
+
+        const deletedUser = await User.findOneAndDelete({ email });
+
+        if (!deletedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json({ message: "User deleted successfully" });
+    } catch (error) {
+        console.error("Delete Error:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
 
 module.exports = router;

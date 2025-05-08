@@ -66,6 +66,18 @@ router.put('/update/:id', async (req, res) => {
     }
 });
 
-
+// Delete a discussion by ID
+router.delete('/delete/:id', async (req, res) => {
+    try {
+        const deleted = await Discussion.findByIdAndDelete(req.params.id);
+        if (!deleted) {
+            return res.status(404).json({ message: "Discussion not found" });
+        }
+        res.status(200).json({ message: "Discussion deleted successfully" });
+    } catch (error) {
+        console.error("Delete Discussion Error:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
 
 module.exports = router;
