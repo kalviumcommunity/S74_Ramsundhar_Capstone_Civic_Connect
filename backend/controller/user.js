@@ -92,4 +92,27 @@ router.post("/login", async (req, res) => {
 });
 
 
+// Update user details by email
+router.put("/update/:email", async (req, res) => {
+    try {
+        const email = req.params.email;
+        const updates = req.body;
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        Object.assign(user, updates);
+        await user.save();
+
+        res.json({ message: "User updated successfully", user });
+    } catch (error) {
+        console.error("Update Error:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+
 module.exports = router;
