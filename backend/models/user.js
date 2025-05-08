@@ -1,52 +1,51 @@
 const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
-
 
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: [true, "Name is required"],
+        trim: true
     },
     email: {
         type: String,
-        required: true,
-        unique: true
+        required: [true, "Email is required"],
+        unique: true,
+        trim: true,
+        lowercase: true,
+        match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"]
     },
     password: {
         type: String,
-        required: true
+        required: [true, "Password is required"],
+        minlength: [8, "Password must be at least 8 characters"],
+        validate: {
+            validator: function (v) {
+                return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(v);
+            },
+            message: props => `Password must include uppercase, lowercase, number, and special character`
+        }
     },
-    role:{
-        type:String,
-        required:true
+    role: {
+        type: String,
+        required: [true, "Role is required"],
+        enum: ["Public", "Admin"]
     },
     address: [{
-        street: { type: String },
-        city: { type: String },
-        state: { type: String },
-        zipCode: { type:Number },
-        country: { type: String }
+        street: { type: String, trim: true },
+        city: { type: String, trim: true },
+        state: { type: String, trim: true },
+        zipCode: { 
+            type: Number,
+            validate: {
+                validator: Number.isInteger,
+                message: 'Zip code must be a number'
+            }
+        },
+        country: { type: String, trim: true }
     }]
-    
-},
+}, 
+{ timestamps: true });
 
-{timestamps:true});
-
-
-
-const User = mongoose.model("User", userSchema );
-
-const Joi = require("joi");
-const passwordComplexity = require("joi-password-complexity");
-
-const validate  = (data) => {
-    const schema = Joi.object({
-        name: Joi.string().required().label("Name"),
-        email: Joi.string().email().required().label("Email"),
-        password: passwordComplexity().required().label("Password"),
-        confirmPassword: Joi.string().required().valid(Joi.ref("password")).label("Confirm Password").messages({ "any.only": `"Confirm Password" must match "Password"`})
-    });
-    return schema.validate(data)
-};
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;
