@@ -20,7 +20,7 @@ const Discussion_Schema  = new mongoose.Schema({
 
     user:{
         type:mongoose.Schema.ObjectId,
-        ref:User
+        ref:'User'
     }},
     
     {timestamps:true})
