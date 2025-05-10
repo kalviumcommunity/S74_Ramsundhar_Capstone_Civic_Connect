@@ -36,6 +36,17 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// Create a new discussion
+router.post('/create', async (req, res) => {
+    try {
+        const newDiscussion = new Discussion(req.body);
+        const savedDiscussion = await newDiscussion.save();
+        res.status(201).json(savedDiscussion);
+    } catch (error) {
+        console.error("Create Discussion Error:", error);
+        res.status(400).json({ message: "Failed to create discussion", error: error.message });
+    }
+});
 
 
 module.exports = router;

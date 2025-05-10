@@ -23,9 +23,9 @@ router.get('/improvements', async (req, res) => {
 
 
   
-
   
-
+  
+  
   router.get('/improvements/:id', async (req, res) => {
     try {
       const improvement = await Improvement.findById(req.params.id).populate('user', 'name email');
@@ -38,12 +38,43 @@ router.get('/improvements', async (req, res) => {
       res.status(500).json({ error: 'Server error' });
     }
   });
+  
+  
+  
+  
+  
+  
+  
 
-
-
-
-
-
-
-
-module.exports = router;
+  router.post('/create', async (req, res) => {
+      try {
+          const { title, description, impact, estimated_time, estimated_budget, phone, user } = req.body;
+  
+          // Check if the user exists
+          const existingUser = await User.findById(user); 
+          if (!existingUser) {
+              return res.status(400).json({ error: "User does not exist. Try logging in and try again." });
+          }
+  
+       
+          const newImprovement = new Improvement({
+              title,
+              description,
+              impact,
+              estimated_time,
+              estimated_budget,
+              phone,
+              user
+          });
+  
+          // Save the new improvement
+          await newImprovement.save();
+  
+          res.status(201).json({ message: "New improvement proposal created." });
+      } catch (error) {
+          console.error(error);
+          res.status(500).json({ error: "Internal server error." });
+      }
+  });
+  
+  module.exports = router;

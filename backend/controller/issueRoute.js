@@ -33,5 +33,31 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+// Create a new issue
+router.post("/create", async (req, res) => {
+    const { title, category, description1, image, user } = req.body;
+
+    if (!title || !category || !description1 || !image || !user) {
+        return res.status(400).json({ message: "All fields are required" });
+    }
+
+    try {
+        const newIssue = new Issue({
+            title,
+            category,
+            description1,
+            image,
+            user
+        });
+
+        await newIssue.save();
+        res.status(201).json({ message: "Issue created successfully", issue: newIssue });
+    } catch (error) {
+        console.error("Issue Creation Error:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+
 
 module.exports = router;
