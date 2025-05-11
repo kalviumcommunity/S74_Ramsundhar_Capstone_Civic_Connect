@@ -59,5 +59,31 @@ router.post("/create", async (req, res) => {
 });
 
 
+// Update an issue by ID
+router.put("/update/:id", async (req, res) => {
+    try {
+        const issue = await Issue.findById(req.params.id);
+        if (!issue) {
+            return res.status(404).json({ message: "Issue not found" });
+        }
+
+        // Update fields based on request body
+        const { title, category, description1, image, user } = req.body;
+
+        if (title) issue.title = title;
+        if (category) issue.category = category;
+        if (description1) issue.description1 = description1;
+        if (image) issue.image = image;
+        if (user) issue.user = user;
+
+        await issue.save();
+        res.status(200).json({ message: "Issue updated successfully", issue });
+    } catch (error) {
+        console.error("Update Issue Error:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+
 
 module.exports = router;

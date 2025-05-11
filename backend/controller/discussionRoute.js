@@ -47,6 +47,25 @@ router.post('/create', async (req, res) => {
         res.status(400).json({ message: "Failed to create discussion", error: error.message });
     }
 });
+// Update a discussion by ID
+router.put('/update/:id', async (req, res) => {
+    try {
+        const updatedDiscussion = await Discussion.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true,
+        });
+
+        if (!updatedDiscussion) {
+            return res.status(404).json({ message: "Discussion not found" });
+        }
+
+        res.status(200).json(updatedDiscussion);
+    } catch (error) {
+        console.error("Update Discussion Error:", error);
+        res.status(400).json({ message: "Failed to update discussion", error: error.message });
+    }
+});
+
 
 
 module.exports = router;
