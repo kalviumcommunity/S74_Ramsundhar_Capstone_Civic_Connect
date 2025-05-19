@@ -270,6 +270,10 @@ Day 30:
 Submit proof of all completed concepts and polish documentation
 
 
+Deployement link -- >https://s74-ramsundhar-capstone-civic-connect-1.onrender.com
+deployement pr--> https://github.com/kalviumcommunity/S74_Ramsundhar_Capstone_Civic_Connect/pull/19
+
+
 
 
 
