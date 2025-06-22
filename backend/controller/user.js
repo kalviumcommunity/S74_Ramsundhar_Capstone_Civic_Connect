@@ -2,6 +2,9 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const Issue = require('../models/issue')
+const Discussion = require('../models/discussion')
+const Improvement = require('../models/improvement')
 const authMiddleware = require('../middleware/auth');
 const router = express.Router();
 
@@ -93,16 +96,25 @@ router.post("/login", async (req, res) => {
             { expiresIn: process.env.JWT_EXPIRES_IN || '3d' }
         );
 
+        // res.cookie('token', token, {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production',
+        //     sameSite: 'strict',
+        //     maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
+        // });
+
         res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
-        });
+        httpOnly: true,
+        secure: false,  // from .env
+        sameSite: process.env.COOKIE_SAMESITE || 'lax',
+        maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
+});
+
 
         res.status(200).json({
             message: "Login successful",
             user: {
+                userId: user._id,
                 name: user.name,
                 email: user.email,
                 role: user.role
@@ -160,5 +172,42 @@ router.delete("/delete/:email", authMiddleware, async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
+
+// Get issues created by user
+router.get('/:email/issues', authMiddleware, async (req, res) => {
+  try {
+    const email = req.params.email;
+    const issues = await Issue.find({ createdByEmail: email }).sort({ createdAt: -1 });
+    res.json(issues);
+  } catch (error) {
+    console.error("Fetch Issues Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// // Get discussions created by user
+// router.get('/:email/discussions', authMiddleware, async (req, res) => {
+//   try {
+//     const email = req.params.email;
+//     const discussions = await Discussion.find({ createdByEmail: email }).sort({ createdAt: -1 });
+//     res.json(discussions);
+//   } catch (error) {
+//     console.error("Fetch Discussions Error:", error);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// });
+
+// // Get proposals created by user
+// router.get('/:email/improvements', authMiddleware, async (req, res) => {
+//   try {
+//     const email = req.params.email;
+//     const proposals = await Improvement.find({ createdByEmail: email }).sort({ createdAt: -1 });
+//     res.json(proposals);
+//   } catch (error) {
+//     console.error("Fetch Proposals Error:", error);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// });
+
 
 module.exports = router;

@@ -1,44 +1,48 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-
-const Improvement_Schema = new mongoose.Schema({
-    title:{
-        type:String,
-        require:true,
-        minlenght:5
+const ImprovementSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,           // ✅ fixed typo: require → required
+      minlength: 5              // ✅ fixed typo: minlenght → minlength
     },
-
-    description:{
-        type:String,
-        require:true,
-        minlenght:30
+    description: {
+      type: String,
+      required: true,
+      minlength: 30
     },
-    impact:{
-        type:String,
-        require:true,
-        minlenght:15
-
+    impact: {
+      type: String,
+      required: true,
+      minlength: 15
     },
-    estimated_time:{
-        type:Number,
-        require:true
+    estimated_time: {
+      type: Number,
+      required: true
     },
-    estimated_budget:{
-        type:Number,
-        require:true
+    estimated_budget: {
+      type: Number,
+      required: true
     },
-    phone:{
-        type:Number,
-        require:true
-    },user:{
-        type:mongoose.Schema.ObjectId,
-        ref:'User'
-    }
+    phone: {
+      type: Number,
+      required: true
+    },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    votes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+      }
+    ]
+  },
+  {
+    timestamps: true
+  }
+);
 
-},
-{timestamps:true
-}
-
-)
-
-module.exports = new mongoose.model("Improvement", Improvement_Schema)
+module.exports = mongoose.model("Improvement", ImprovementSchema);

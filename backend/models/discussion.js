@@ -14,7 +14,8 @@ const Discussion_Schema  = new mongoose.Schema({
         minlenght:30
     },
     tags:{
-        type:String,
+        type:[String],
+        default:[]
 
     },
 

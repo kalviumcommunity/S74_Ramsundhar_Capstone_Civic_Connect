@@ -1,6 +1,20 @@
 const express = require('express');
 const Issue = require('../models/issue');
 const router = express.Router();
+const multer =  require('multer')
+const path = require("path");
+const auth = require('../middleware/auth')
+
+const storage = multer.diskStorage({
+    destination:(req,file,cb)=>{
+        cb(null,'uploads/')
+    },
+    filename:(req,file,cb)=>{
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+})
+
+const upload = multer({storage:storage})
 
 // Test route for issues
 router.get("/", (req, res) => {
@@ -32,9 +46,10 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-// Create a new issue (user is taken from schema default)
-router.post("/create", async (req, res) => {
-    const { title, category, description1, image } = req.body;
+
+router.post("/create", auth, upload.single('image'), async (req, res) => {
+    const { title, category, description1 } = req.body;
+    const image = req.file ? `/uploads/${req.file.filename}` : null;
 
     if (!title || !category || !description1 || !image) {
         return res.status(400).json({ message: "All fields are required" });
@@ -45,8 +60,8 @@ router.post("/create", async (req, res) => {
             title,
             category,
             description1,
-            image
-            // user is omitted so schema default applies
+            image,
+            user: req.user.userId  
         });
 
         await newIssue.save();
@@ -56,6 +71,8 @@ router.post("/create", async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 });
+
+
 
 // Update an issue by ID
 router.put("/update/:id", async (req, res) => {

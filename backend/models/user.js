@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         required: [true, "Role is required"],
-        enum: ["Public", "Admin"]
+        enum: ["citizen", "Admin"]
     },
     address: [{
         street: { type: String, trim: true },
