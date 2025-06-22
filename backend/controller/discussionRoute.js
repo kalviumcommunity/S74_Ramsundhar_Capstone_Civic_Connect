@@ -1,17 +1,14 @@
-const Discussion = require('../models/discussion');
-const User = require('../models/user');
 const express = require('express');
 const router = express.Router();
+const Discussion = require('../models/discussion');
+const authMiddleware = require("../middleware/auth")
 
-
-
-// Test route
+// ✅ Test route
 router.get("/", (req, res) => {
     res.send("Discussion route is working...");
 });
 
-
-// Get all discussions
+// ✅ Get all discussions with user populated (no password)
 router.get('/all', async (req, res) => {
     try {
         const discussions = await Discussion.find().populate('user', '-password');
@@ -22,7 +19,7 @@ router.get('/all', async (req, res) => {
     }
 });
 
-// Get a discussion by ID
+// ✅ Get a discussion by ID
 router.get('/:id', async (req, res) => {
     try {
         const discussion = await Discussion.findById(req.params.id).populate('user', '-password');
@@ -36,18 +33,29 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Create a new discussion
-router.post('/create', async (req, res) => {
-    try {
-        const newDiscussion = new Discussion(req.body);
-        const savedDiscussion = await newDiscussion.save();
-        res.status(201).json(savedDiscussion);
-    } catch (error) {
-        console.error("Create Discussion Error:", error);
-        res.status(400).json({ message: "Failed to create discussion", error: error.message });
-    }
+// ✅ Create a new discussion (protected route)
+
+router.post('/create', authMiddleware, async (req, res) => {
+  try {
+    const { title, description, tags } = req.body;
+
+    const newDiscussion = new Discussion({
+      title,
+      description,
+      tags: Array.isArray(tags) ? tags : [],
+      user: req.user.userId,
+    });
+
+    const savedDiscussion = await newDiscussion.save();
+    res.status(201).json(savedDiscussion);
+  } catch (error) {
+    console.error("Create Discussion Error:", error);
+    res.status(400).json({ message: "Failed to create discussion", error: error.message });
+  }
 });
-// Update a discussion by ID
+
+
+// ✅ Update discussion
 router.put('/update/:id', async (req, res) => {
     try {
         const updatedDiscussion = await Discussion.findByIdAndUpdate(req.params.id, req.body, {
@@ -66,7 +74,7 @@ router.put('/update/:id', async (req, res) => {
     }
 });
 
-// Delete a discussion by ID
+// ✅ Delete discussion
 router.delete('/delete/:id', async (req, res) => {
     try {
         const deleted = await Discussion.findByIdAndDelete(req.params.id);

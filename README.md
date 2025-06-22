@@ -277,3 +277,10 @@ deployement pr--> https://github.com/kalviumcommunity/S74_Ramsundhar_Capstone_Ci
 
 
 
+Backend  deployed link -- https://s74-ramsundhar-capstone-civic-connect-1.onrender.com
+Deployed backed server pr --> 
+
+
+
+frontend 
+npm install @heroicons/react
