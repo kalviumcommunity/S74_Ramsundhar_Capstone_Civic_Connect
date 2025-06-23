@@ -10,53 +10,49 @@ export default function Login() {
   const [role, setRole] = useState("citizen"); // Default to lowercase for consistency
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsSubmitting(true);
 
-    try {
-      const res = await fetch("http://localhost:8000/user/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password, role }),
-      });
+  try {
+    const res = await fetch("http://localhost:8000/user/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email, password, role }),
+    });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Login failed");
-      
+    const data = await res.json();
 
-    // ✅ Log the user data to console
+    if (!res.ok) throw new Error(data.message || "Login failed");
+
     console.log("Login successful! User data:", data);
 
-    // ✅ Save user in localStorage
-    localStorage.setItem("user", JSON.stringify({
-  userId: data.user.userId,
-  name: data.user.name,
-  email: data.user.email,
-  role: data.user.role
-}));
+    // ✅ Store token and userId for voting and authentication
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("userId", data.user.userId);
 
+    // ✅ Optionally store entire user object
+    localStorage.setItem("user", JSON.stringify(data.user));
 
     alert("Login successful");
-    navigate("/");
 
-
-      // ✅ Redirect based on role
-      if (role === "official") {
-        navigate("/official/dashboard");
-      } else if (role === "moderator") {
-        navigate("/moderator");
-      } else {
-        navigate("/");
-      }
-
-    } catch (err) {
-      alert(err.message);
-    } finally {
-      setIsSubmitting(false);
+    // ✅ Redirect based on role
+    if (role === "official") {
+      navigate("/official/dashboard");
+    } else if (role === "moderator") {
+      navigate("/moderator");
+    } else {
+      navigate("/");
     }
-  };
+
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   return (
     <>

@@ -26,11 +26,14 @@ const issueRoute = require('./controller/issueRoute');
 const discussionRoute = require('./controller/discussionRoute');
 const improvementRoute = require('./controller/improvementRoutes');
 const userRoute = require('./controller/user');
+const commentRoute = require("./controller/comment")
 
 app.use('/user', userRoute);
 app.use('/issue', issueRoute);
 app.use('/discussion', discussionRoute);
 app.use('/improvement', improvementRoute);
+app.use("/comment", commentRoute);
+
 
 // === Root Route ===
 app.get('/', (req, res) => {

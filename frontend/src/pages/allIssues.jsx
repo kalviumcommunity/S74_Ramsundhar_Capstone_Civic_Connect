@@ -32,7 +32,8 @@ export default function Issues() {
   useEffect(() => {
     const filteredData = issues.filter((issue) =>
       issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      issue.description1.toLowerCase().includes(searchTerm.toLowerCase())
+      issue.description1.toLowerCase().includes(searchTerm.toLowerCase())||
+      issue.location.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFiltered(filteredData);
   }, [searchTerm, issues]);
@@ -115,6 +116,9 @@ export default function Issues() {
                 <p className="text-sm text-gray-500">
                   Category: {issue.category}
                 </p>
+                {/* <p className="text-sm text-gray-500">
+                  Place: {issue.location}
+                </p> */}
                 <p className="text-sm text-gray-500">
                   Reported by: {issue?.user?.name || "Anonymous"}
                 </p>

@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { MessageCircle, PlusCircle, Search, TrendingUp, ArrowUp } from "lucide-react";
 import Header from "../components/header";
 import Footer from "../components/footer";
+import { Link } from "react-router-dom";
+
 
 export default function CommunityHubStandalone() {
   const navigate = useNavigate();
@@ -27,11 +29,12 @@ export default function CommunityHubStandalone() {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include", // ✅ This sends the JWT cookie
     });
 
     if (!res.ok) throw new Error("Voting failed");
 
-    // Update trending data after successful vote
+    // ✅ Refresh trending proposals
     const updatedRes = await fetch("http://localhost:8000/improvement/improvements");
     const updatedData = await updatedRes.json();
     setTrending(updatedData);
@@ -40,6 +43,7 @@ export default function CommunityHubStandalone() {
     alert("Voting failed. Try again later.");
   }
 };
+
 
   return (
     <>
@@ -94,16 +98,21 @@ export default function CommunityHubStandalone() {
               {discussions
                 .filter(d => d.title.toLowerCase().includes(searchTerm.toLowerCase()))
                 .map((d) => (
-                  <div key={d._id} className="bg-white border rounded-md p-4">
-                    <h2 className="font-medium text-lg mb-1">{d.title}</h2>
-                    <div className="text-sm text-gray-500 flex items-center gap-2">
-                      <span className="font-semibold text-gray-700">
-                        {d.user?.name || "Anonymous"}
-                      </span>
-                      <span>•</span>
-                      <span>{new Date(d.createdAt).toLocaleDateString()}</span>
-                    </div>
-                  </div>
+                      <Link
+                        key={d._id}
+                        to={`/discussion/${d._id}`}
+                        className="block bg-white border rounded-md p-4 hover:bg-gray-50 transition"
+                      >
+                        <h2 className="font-medium text-lg mb-1">{d.title}</h2>
+                        <div className="text-sm text-gray-500 flex items-center gap-2">
+                          <span className="font-semibold text-gray-700">
+                            {d.user?.name || "Anonymous"}
+                          </span>
+                          <span>•</span>
+                          <span>{new Date(d.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </Link>
+
                 ))}
             </div>
 
@@ -118,8 +127,9 @@ export default function CommunityHubStandalone() {
                   <div key={t._id} className="border-b border-orange-200 pb-2 mb-2 last:border-none last:mb-0">
                     <p className="font-medium text-sm text-gray-900">{t.title}</p>
                     <p className="text-xs text-orange-700 flex items-center">
-                      <ArrowUp className="w-3 h-3 mr-1" /> {t.votes} votes
+                        <ArrowUp className="w-3 h-3 mr-1" /> {t.votes?.length || 0} votes
                     </p>
+
                   </div>
                 ))}
               </div>

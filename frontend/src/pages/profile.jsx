@@ -84,9 +84,18 @@ export default function Profile() {
               <p className="mt-2 text-gray-600">
                 <strong>Role:</strong> {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
               </p>
-              <p className="mt-2 text-gray-600">
-                <strong>Address:</strong> {user.address || "N/A"}
-              </p>
+             <div className="mt-2 text-gray-600">
+                  <strong>Address:</strong>
+                  {user.address && user.address.length > 0 ? (
+                    user.address.map((addr, idx) => (
+                      <div key={idx} className="ml-2 mt-1 text-sm">
+                        📍 {addr.street}, {addr.city}, {addr.state} - {addr.pincode}, {addr.country}
+                      </div>
+                    ))
+                  ) : (
+                    <span className="ml-2">N/A</span>
+                  )}
+              </div>
 
               <button
                 className="mt-6 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"

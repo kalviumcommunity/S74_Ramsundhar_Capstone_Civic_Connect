@@ -34,13 +34,14 @@ export default function ImprovementsList() {
   }
 
   try {
-    const res = await fetch(`http://localhost:8000/improvement/${id}/vote`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // ✅ Auth header required
-      },
-    });
+ const res = await fetch(`http://localhost:8000/improvement/${id}/vote`, {
+  method: "PATCH",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  credentials: "include", // ✅ this line is the key
+});
+
 
     const data = await res.json();
 
@@ -49,7 +50,7 @@ export default function ImprovementsList() {
       return;
     }
 
-    fetchProposals(); // ✅ Refresh proposals after voting
+    fetchProposals(); // ✅ Refresh proposAuthorization: `Bearer ${token}`, // ✅ Auth header requiredals after voting
   } catch (err) {
     console.error("Vote error:", err);
     alert("Voting failed. Try again later.");
@@ -73,9 +74,9 @@ export default function ImprovementsList() {
               const userId = localStorage.getItem("userId");
 
               const alreadyVoted = item.votes?.some((v) => {
-                if (typeof v === "object" && v._id) return v._id === userId;
-                return v === userId;
-              });
+              const voteId = typeof v === "object" && v._id ? v._id : v;
+  return String(voteId) === String(userId);
+});
 
               return (
                 <div key={item._id} className="bg-white p-4 rounded shadow">
@@ -86,17 +87,15 @@ export default function ImprovementsList() {
                   <p className="text-sm text-gray-500">Budget: ₹{item.estimated_budget}</p>
                   <p className="text-sm text-gray-500">Phone: {item.phone}</p>
                   <div className="mt-2 flex justify-between items-center">
-                    <button
-                      onClick={() => handleVote(item._id)}
-                      disabled={alreadyVoted}
-                      className={`px-3 py-1 text-sm rounded text-white ${
-                        alreadyVoted
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-green-600 hover:bg-green-700"
-                      }`}
-                    >
-                      {alreadyVoted ? "Voted" : "Vote"}
-                    </button>
+                        <button
+                          onClick={() => handleVote(item._id)}
+                          className={`px-3 py-1 text-sm rounded text-white ${
+                            alreadyVoted ? "bg-red-500 hover:bg-red-600" : "bg-green-600 hover:bg-green-700"
+                          }`}
+                        >
+                          {alreadyVoted ? "Undo Vote" : "Vote"}
+                        </button>
+
                     <p className="text-sm text-gray-700">{item.votes?.length || 0} votes</p>
                   </div>
                 </div>
