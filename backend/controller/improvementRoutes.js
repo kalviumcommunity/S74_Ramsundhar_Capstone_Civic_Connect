@@ -3,6 +3,7 @@ const router = express.Router();
 const Improvement = require('../models/improvement');
 const User = require('../models/user');
 const auth = require('../middleware/auth');
+const mongoose = require("mongoose");
 
 // Health check
 router.get('/', (req, res) => {
@@ -62,9 +63,10 @@ router.post('/create', auth, async (req, res) => {
   }
 });
 
-// Vote on improvement
+
+
 router.patch("/:id/vote", auth, async (req, res) => {
-  const userId = req.user.userId; // 👈 Comes from decoded token
+  const userId = req.user.userId;
 
   try {
     const improvement = await Improvement.findById(req.params.id);
@@ -72,19 +74,34 @@ router.patch("/:id/vote", auth, async (req, res) => {
       return res.status(404).json({ error: "Improvement not found" });
     }
 
-    if (improvement.votes.includes(userId)) {
-      return res.status(400).json({ error: "You have already voted." });
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    const alreadyVoted = improvement.votes.some(v =>
+      v.equals(userObjectId)
+    );
+
+    if (alreadyVoted) {
+      // ✅ Undo vote
+      improvement.votes = improvement.votes.filter(
+        v => !v.equals(userObjectId)
+      );
+    } else {
+      // ✅ Add vote
+      improvement.votes.push(userObjectId);
     }
 
-    improvement.votes.push(userId);
     await improvement.save();
-
-    res.status(200).json(improvement);
+    res.status(200).json({
+      message: alreadyVoted ? "Vote removed" : "Vote added",
+      votes: improvement.votes.length,
+    });
   } catch (err) {
     console.error("Vote error:", err);
-    res.status(500).json({ error: "Failed to vote" });
+    res.status(500).json({ error: "Failed to toggle vote" });
   }
 });
+
+
 
 
 

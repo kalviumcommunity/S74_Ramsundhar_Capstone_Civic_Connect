@@ -34,12 +34,25 @@ router.get('/profile/:emailid', authMiddleware, async (req, res) => {
     }
 });
 
-// Register route
 router.post("/register", async (req, res) => {
     const { name, email, password, confirmPassword, role, address } = req.body;
 
     if (!name || !email || !password || !confirmPassword || !role) {
         return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (!Array.isArray(address) || address.length === 0) {
+        return res.status(400).json({ message: "Address is required and must be an array." });
+    }
+
+    const { street, city, state, pincode, country } = address[0];
+
+    if (!street || !city || !state || !pincode || !country) {
+        return res.status(400).json({ message: "All address fields are required" });
+    }
+
+    if (isNaN(pincode) || !Number.isInteger(pincode)) {
+        return res.status(400).json({ message: "Zip code must be a valid integer" });
     }
 
     if (password !== confirmPassword) {
@@ -70,6 +83,7 @@ router.post("/register", async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 });
+
 
 // Login route with JWT and cookie
 router.post("/login", async (req, res) => {
@@ -128,10 +142,15 @@ router.post("/login", async (req, res) => {
 });
 
 // Logout route
-router.post("/logout", (req, res) => {
-    res.clearCookie('token');
-    res.json({ message: "Logged out successfully" });
+router.get("/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "Lax", // or "None" if using cross-origin
+    secure: false,   // set to true in production
+  });
+  return res.status(200).json({ message: "Logged out successfully" });
 });
+
 
 // Update user (protected)
 router.put("/update/:email", authMiddleware, async (req, res) => {

@@ -2,22 +2,39 @@ const express = require('express');
 const router = express.Router();
 const Discussion = require('../models/discussion');
 const authMiddleware = require("../middleware/auth")
+// controller/discussion.js or routes/discussion.js
+
+const Comment = require('../models/comment');
+
+
 
 // ✅ Test route
 router.get("/", (req, res) => {
     res.send("Discussion route is working...");
 });
 
-// ✅ Get all discussions with user populated (no password)
 router.get('/all', async (req, res) => {
-    try {
-        const discussions = await Discussion.find().populate('user', '-password');
-        res.status(200).json(discussions);
-    } catch (error) {
-        console.error("Fetch Discussions Error:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
+  try {
+    const discussions = await Discussion.find().populate('user', 'name');
+
+    const discussionsWithCounts = await Promise.all(
+      discussions.map(async (d) => {
+        const commentCount = await Comment.countDocuments({ discussion: d._id });
+        return {
+          ...d.toObject(),
+          commentCount,
+        };
+      })
+    );
+
+    res.status(200).json(discussionsWithCounts);
+  } catch (error) {
+    console.error("Fetch Discussions Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
+
+
 
 // ✅ Get a discussion by ID
 router.get('/:id', async (req, res) => {
@@ -87,5 +104,10 @@ router.delete('/delete/:id', async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 });
+
+
+
+
+
 
 module.exports = router;

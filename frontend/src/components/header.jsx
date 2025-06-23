@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import useLogout from "./logout";
 
 const Header = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const logout = useLogout(); // ✅ Call custom hook
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -13,12 +16,6 @@ const Header = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  const logout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-    alert("Logged out");
-  };
 
   return (
     <header className="w-full px-4 py-3 bg-white shadow-md flex items-center justify-between">
